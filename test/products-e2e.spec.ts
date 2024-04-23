@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 
 import { AppModule } from '@src/app.module';
+import { CreateCategoryDto } from '@src/categories/dto/create-category.dto';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { CreateProductDto } from '@src/products/dto/create-product.dto';
 import { UpdateProductDto } from '@src/products/dto/update-product.dto';
@@ -14,6 +15,12 @@ describe('Products (e2e)', () => {
   let moduleFixture: TestingModule;
   let prisma: PrismaService;
 
+  const createCategoryDto = new CreateCategoryDto();
+  createCategoryDto.name = 'categoria';
+  createCategoryDto.description = 'descricao da categoria';
+
+  let categoryId: string;
+
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
@@ -23,20 +30,34 @@ describe('Products (e2e)', () => {
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
     await app.init();
+    await request(app.getHttpServer())
+      .post('/categories')
+      .send(createCategoryDto)
+      .expect(201)
+      .expect((response) => {
+        const body = response.body;
+        categoryId = body.id;
+      });
   });
 
   const createProductDto = new CreateProductDto();
   const product = new Product();
 
   beforeEach(async () => {
+    createProductDto.categoryId = categoryId;
     createProductDto.name = 'produto';
     createProductDto.description = 'descrição do produto';
     createProductDto.value = 5.5;
+    createProductDto.amount_in_stock = 10;
 
     product.id = expect.any(String);
+    product.categoryId = createProductDto.categoryId;
+    product.category = expect.any(Object);
     product.name = createProductDto.name;
     product.description = createProductDto.description;
     product.value = createProductDto.value;
+    product.amount_in_stock = createProductDto.amount_in_stock;
+    product.is_active = expect.any(Boolean);
     product.created_at = expect.any(String);
     product.updated_at = expect.any(String);
 

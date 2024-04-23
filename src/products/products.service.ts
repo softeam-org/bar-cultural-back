@@ -22,7 +22,6 @@ export class ProductsService {
     try {
       const product = await this.prisma.product.create({
         data: createProductDto,
-        select: selectProduct,
       });
       return product;
     } catch (err) {
