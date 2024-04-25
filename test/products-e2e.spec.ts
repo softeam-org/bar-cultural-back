@@ -5,6 +5,7 @@ import * as request from 'supertest';
 
 import { AppModule } from '@src/app.module';
 import { CreateCategoryDto } from '@src/categories/dto/create-category.dto';
+import { Category } from '@src/categories/entities/category.entity';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { CreateProductDto } from '@src/products/dto/create-product.dto';
 import { UpdateProductDto } from '@src/products/dto/update-product.dto';
@@ -16,10 +17,10 @@ describe('Products (e2e)', () => {
   let prisma: PrismaService;
 
   const createCategoryDto = new CreateCategoryDto();
+  const category = new Category();
+
   createCategoryDto.name = 'categoria';
   createCategoryDto.description = 'descricao da categoria';
-
-  let categoryId: string;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -36,7 +37,12 @@ describe('Products (e2e)', () => {
       .expect(201)
       .expect((response) => {
         const body = response.body;
-        categoryId = body.id;
+        category.id = body.id;
+        category.name = body.name;
+        category.description = body.description;
+        category.is_active = body.is_active;
+        category.created_at = body.created_at;
+        category.updated_at = body.updated_at;
       });
   });
 
@@ -44,7 +50,7 @@ describe('Products (e2e)', () => {
   const product = new Product();
 
   beforeEach(async () => {
-    createProductDto.categoryId = categoryId;
+    createProductDto.categoryId = category.id;
     createProductDto.name = 'produto';
     createProductDto.description = 'descrição do produto';
     createProductDto.value = 5.5;
@@ -52,7 +58,7 @@ describe('Products (e2e)', () => {
 
     product.id = expect.any(String);
     product.categoryId = createProductDto.categoryId;
-    product.category = expect.any(Object);
+    product.category = category;
     product.name = createProductDto.name;
     product.description = createProductDto.description;
     product.value = createProductDto.value;
