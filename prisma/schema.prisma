@@ -32,12 +32,14 @@ model Category {
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String
-  created_by  String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt()
+  id           String   @id @default(uuid())
+  name         String   @unique
+  description  String
+  ended_at     DateTime
+  attraction   String
+  observations String[]
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt()
 
   @@map("events")
 }
