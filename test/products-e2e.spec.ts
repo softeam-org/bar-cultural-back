@@ -20,7 +20,7 @@ describe('Products (e2e)', () => {
   const category = new Category();
 
   createCategoryDto.name = 'categoria';
-  createCategoryDto.description = 'descricao da categoria';
+  createCategoryDto.is_active = true;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -39,7 +39,6 @@ describe('Products (e2e)', () => {
         const body = response.body;
         category.id = body.id;
         category.name = body.name;
-        category.description = body.description;
         category.is_active = body.is_active;
         category.created_at = body.created_at;
         category.updated_at = body.updated_at;

@@ -22,24 +22,25 @@ model Administrator {
 }
 
 model Category {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  description String
-  is_active   Boolean   @default(true)
-  products    Product[]
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @updatedAt()
+  id         String    @id @default(uuid())
+  name       String    @unique
+  is_active  Boolean   @default(true)
+  products   Product[]
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt()
 
   @@map("categories")
 }
 
 model Event {
-  id          String   @id @default(uuid())
-  name        String   @unique
-  description String
-  created_by  String
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt()
+  id           String   @id @default(uuid())
+  name         String   @unique
+  description  String
+  ended_at     DateTime
+  attraction   String
+  observations String[]
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt()
 
   @@map("events")
 }

@@ -29,16 +29,20 @@ describe('Events (e2e)', () => {
   const event = new Event();
 
   beforeEach(async () => {
-    createEventDto.created_by = 'criador';
     createEventDto.description = 'descriçao do evento';
     createEventDto.name = 'evento';
+    createEventDto.ended_at = new Date(2024,5,25);
+    createEventDto.attraction = 'atração';
+    createEventDto.observations = ['observação'];
 
     event.id = expect.any(String);
-    event.created_by = createEventDto.created_by;
     event.description = createEventDto.description;
     event.name = createEventDto.name;
     event.created_at = expect.any(String);
     event.updated_at = expect.any(String);
+    event.ended_at = createEventDto.ended_at;
+    event.attraction = createEventDto.attraction;
+    event.observations = createEventDto.observations;
 
     await prisma.event.deleteMany();
   });
@@ -131,7 +135,7 @@ describe('Events (e2e)', () => {
       .get(`/events/${eventId}`)
       .expect(200)
       .expect((response) => {
-        expect(response.body).toEqual(event);
+        expect(response.body).toEqual({...event, ended_at: event.ended_at.toISOString()});
       });
 
     await request(app.getHttpServer())
@@ -160,9 +164,11 @@ describe('Events (e2e)', () => {
       .expect(201);
 
     const updatedEvent = new UpdateEventDto();
-    updatedEvent.created_by = 'novo criador';
     updatedEvent.description = 'descriçao do evento';
     updatedEvent.name = 'nome alterado';
+    updatedEvent.ended_at = new Date(2024,8,15);
+    updatedEvent.attraction = 'nova atração';
+    updatedEvent.observations = ['nova observação'];
 
     await request(app.getHttpServer())
       .patch(`/events/${eventId}`)
@@ -170,9 +176,11 @@ describe('Events (e2e)', () => {
       .expect(200)
       .expect((response) => {
         const { body } = response;
-        expect(body.created_by).toEqual(updatedEvent.created_by);
         expect(body.description).toEqual(updatedEvent.description);
         expect(body.name).toEqual(updatedEvent.name);
+        expect(body.ended_at).toEqual(updatedEvent.ended_at?.toISOString());
+        expect(body.attraction).toEqual(updatedEvent.attraction);
+        expect(body.observations).toEqual(updatedEvent.observations);
       });
 
     updatedEvent.name = 'Evento 2.0';
