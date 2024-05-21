@@ -4,6 +4,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 
 import { AppModule } from '@src/app.module';
+import { CreateCategoryDto } from '@src/categories/dto/create-category.dto';
+import { Category } from '@src/categories/entities/category.entity';
 import { PrismaService } from '@src/prisma/prisma.service';
 import { CreateProductDto } from '@src/products/dto/create-product.dto';
 import { UpdateProductDto } from '@src/products/dto/update-product.dto';
@@ -14,6 +16,12 @@ describe('Products (e2e)', () => {
   let moduleFixture: TestingModule;
   let prisma: PrismaService;
 
+  const createCategoryDto = new CreateCategoryDto();
+  const category = new Category();
+
+  createCategoryDto.name = 'categoria';
+  createCategoryDto.is_active = true;
+
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
       imports: [AppModule],
@@ -23,20 +31,38 @@ describe('Products (e2e)', () => {
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
     await app.init();
+    await request(app.getHttpServer())
+      .post('/categories')
+      .send(createCategoryDto)
+      .expect(201)
+      .expect((response) => {
+        const body = response.body;
+        category.id = body.id;
+        category.name = body.name;
+        category.is_active = body.is_active;
+        category.created_at = body.created_at;
+        category.updated_at = body.updated_at;
+      });
   });
 
   const createProductDto = new CreateProductDto();
   const product = new Product();
 
   beforeEach(async () => {
+    createProductDto.categoryId = category.id;
     createProductDto.name = 'produto';
     createProductDto.description = 'descrição do produto';
     createProductDto.value = 5.5;
+    createProductDto.amount_in_stock = 10;
 
     product.id = expect.any(String);
+    product.categoryId = createProductDto.categoryId;
+    product.category = category;
     product.name = createProductDto.name;
     product.description = createProductDto.description;
     product.value = createProductDto.value;
+    product.amount_in_stock = createProductDto.amount_in_stock;
+    product.is_active = expect.any(Boolean);
     product.created_at = expect.any(String);
     product.updated_at = expect.any(String);
 

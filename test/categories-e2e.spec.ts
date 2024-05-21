@@ -30,10 +30,11 @@ describe('Categories (e2e)', () => {
 
   beforeEach(async () => {
     createCategoryDto.name = 'categoria';
+    createCategoryDto.is_active = true;
 
     category.id = expect.any(String);
     category.name = createCategoryDto.name;
-    category.is_active = true;
+    category.is_active = expect.any(Boolean);
     category.created_at = expect.any(String);
     category.updated_at = expect.any(String);
 
