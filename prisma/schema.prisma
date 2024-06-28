@@ -41,6 +41,7 @@ model Event {
   observations String[]
   created_at   DateTime @default(now())
   updated_at   DateTime @updatedAt()
+  products     ProductEvent[]
 
   @@map("events")
 }
@@ -56,6 +57,17 @@ model Product {
   is_active       Boolean  @default(true)
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt()
+  events          ProductEvent[]
 
   @@map("products")
+}
+
+model ProductEvent {
+  product     Product @relation(fields: [product_id], references: [id])
+  product_id  String
+  event       Event   @relation(fields: [event_id], references: [id])
+  event_id    String
+
+  @@id([product_id, event_id])
+  @@map("products_events")
 }
