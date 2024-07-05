@@ -63,4 +63,6 @@ model Product {
 model Payment_terminal {
   id     String @id @default(uuid())
   status String
+
+  @@map("payment_terminals")
 }

@@ -26,7 +26,7 @@ export class PaymentTerminalsService {
       });
       return paymentTerminal;
     } catch (err) {
-      throw new ConflictException('Conflito ao criar terminal de pagamento.');
+      throw new ConflictException('Terminal de pagamento já existe.');
     }
   }
 
@@ -62,8 +62,7 @@ export class PaymentTerminalsService {
         recordNotFound == err.code
       ) {
         throw new BadRequestException('Terminal de pagamento não existe.');
-      } else
-        throw new ConflictException('Conflito ao criar terminal de pagamento.');
+      } else throw new ConflictException('Terminal de pagamento já existe.');
     }
   }
 

@@ -27,7 +27,7 @@ import { PaymentTerminal } from './entities/payment-terminal.entity';
 import { PaymentTerminalsService } from './payment-terminal.service';
 
 @ApiTags('PaymentTerminals')
-@Controller('paymentTerminals')
+@Controller('payment_terminals')
 export class PaymentTerminalsController {
   constructor(
     private readonly paymentTerminalsService: PaymentTerminalsService,
@@ -38,7 +38,7 @@ export class PaymentTerminalsController {
     type: PaymentTerminal,
   })
   @ApiConflictResponse({
-    description: 'Conflito ao criar terminal de pagamento.',
+    description: 'Terminal de pagamento já existe.',
   })
   @ApiBadGatewayResponse({ description: 'Requisição inválida.' })
   @Post()
@@ -50,6 +50,7 @@ export class PaymentTerminalsController {
     type: PaymentTerminal,
     isArray: true,
   })
+  @Get()
   @ApiQuery({
     name: 'order',
     type: String,
@@ -57,14 +58,12 @@ export class PaymentTerminalsController {
       "Deve ser passado 'asc' ou vazio para retornar os dados ordenados em ordem crescente ou 'desc' para retornar em ordem descrescente com base no nome",
     required: false,
   })
-  @Get()
   findAll(@Query('order', ParseSortOrderPipe) order?: SortOrder) {
     return this.paymentTerminalsService.findAll(order);
   }
 
   @ApiOkResponse({
     type: PaymentTerminal,
-    isArray: false,
   })
   @ApiBadRequestResponse({ description: 'Terminal de pagamento não existe.' })
   @Get(':id')
@@ -74,11 +73,11 @@ export class PaymentTerminalsController {
 
   @ApiBadRequestResponse({ description: 'Terminal de pagamento não existe.' })
   @ApiConflictResponse({
-    description: 'Conflito ao criar terminal de pagamento.',
+    description: 'Terminal de pagamento já existe.',
   })
   @ApiOkResponse({
-    description: 'Terminal de pagamento atualizado com sucesso.',
     type: PaymentTerminal,
+    description: 'Terminal de pagamento atualizado com sucesso.',
   })
   @Patch(':id')
   update(
