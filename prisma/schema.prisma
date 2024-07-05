@@ -68,6 +68,6 @@ model ProductEvent {
   event       Event   @relation(fields: [event_id], references: [id])
   event_id    String
 
-  @@id([product_id, event_id])
+  @@id(name:"productEventId", [product_id, event_id])
   @@map("products_events")
 }
