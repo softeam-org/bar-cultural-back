@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
 } from '@nestjs/common';
 import {
   ApiBadGatewayResponse,
@@ -14,12 +13,8 @@ import {
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiOkResponse,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-
-import { ParseSortOrderPipe } from '@utils/pipes';
-import { SortOrder } from '@utils/types';
 
 import { CreatePaymentTerminalDto } from './dto/create-payment-terminal.dto';
 import { UpdatePaymentTerminalDto } from './dto/update-payment-terminal.dto';
@@ -51,15 +46,8 @@ export class PaymentTerminalsController {
     isArray: true,
   })
   @Get()
-  @ApiQuery({
-    name: 'order',
-    type: String,
-    description:
-      "Deve ser passado 'asc' ou vazio para retornar os dados ordenados em ordem crescente ou 'desc' para retornar em ordem descrescente com base no nome",
-    required: false,
-  })
-  findAll(@Query('order', ParseSortOrderPipe) order?: SortOrder) {
-    return this.paymentTerminalsService.findAll(order);
+  findAll() {
+    return this.paymentTerminalsService.findAll();
   }
 
   @ApiOkResponse({

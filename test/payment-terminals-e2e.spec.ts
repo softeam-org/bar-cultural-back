@@ -9,6 +9,11 @@ import { UpdatePaymentTerminalDto } from '@src/payment_terminals/dto/update-paym
 import { PaymentTerminal } from '@src/payment_terminals/entities/payment-terminal.entity';
 import { PrismaService } from '@src/prisma/prisma.service';
 
+enum Status {
+  Ativo = 'Ativo',
+  Inativo = 'Inativo',
+}
+
 describe('PaymentTerminals (e2e)', () => {
   let app: INestApplication;
   let moduleFixture: TestingModule;
@@ -29,12 +34,12 @@ describe('PaymentTerminals (e2e)', () => {
   const paymentTerminal = new PaymentTerminal();
 
   beforeEach(async () => {
-    createPaymentTerminalDto.status = 'Inativo';
+    createPaymentTerminalDto.status = Status.Inativo;
 
     paymentTerminal.id = expect.any(String);
     paymentTerminal.status = createPaymentTerminalDto.status;
 
-    await prisma.payment_terminal.deleteMany();
+    await prisma.paymentTerminal.deleteMany();
   });
 
   test('/payment_terminal (POST)', async () => {
@@ -48,11 +53,11 @@ describe('PaymentTerminals (e2e)', () => {
   });
 
   test('/payment_terminal (GET)', async () => {
-    const paymentTerminalStatus = ['Ativo', 'Em manutenção', 'Inativo'];
+    const paymentTerminalStatus = ['Ativo', 'Inativo'];
     const create = paymentTerminalStatus.map((status) => {
       const dto: CreatePaymentTerminalDto = {
         ...createPaymentTerminalDto,
-        status,
+        status: status as Status,
       };
       return request(app.getHttpServer())
         .post('/payment_terminals')
@@ -67,40 +72,10 @@ describe('PaymentTerminals (e2e)', () => {
 
     await request(app.getHttpServer())
       .get('/payment_terminals')
-      .query({ order: 'asc' })
-      .expect(200)
-      .expect((response) => {
-        expect(response.body[0].status).toEqual('Ativo');
-        expect(response.body[1].status).toEqual('Em manutenção');
-        expect(response.body[2].status).toEqual('Inativo');
-      });
-
-    await request(app.getHttpServer())
-      .get('/payment_terminals')
-      .query({ order: 'desc' })
-      .expect(200)
-      .expect((response) => {
-        expect(response.body[0].status).toEqual('Inativo');
-        expect(response.body[1].status).toEqual('Em manutenção');
-        expect(response.body[2].status).toEqual('Ativo');
-      });
-
-    await request(app.getHttpServer())
-      .get('/payment_terminals')
-      .query({ order: 'as' })
-      .expect(400)
-      .expect((response) => {
-        expect(response.body.message).toEqual(
-          "Ordem só pode ser 'asc' ou 'desc'",
-        );
-      });
-
-    await request(app.getHttpServer())
-      .get('/payment_terminals')
       .expect(200)
       .expect((response) => {
         expect(response.body.message).toEqual(
-          expect(response.body).toHaveLength(3),
+          expect(response.body).toHaveLength(2),
         );
       });
   });
@@ -143,7 +118,7 @@ describe('PaymentTerminals (e2e)', () => {
         paymentTerminalId = response.body.id;
       });
 
-    createPaymentTerminalDto.status = 'Ativo';
+    createPaymentTerminalDto.status = Status.Ativo;
 
     await request(app.getHttpServer())
       .post('/payment_terminals')
@@ -151,7 +126,7 @@ describe('PaymentTerminals (e2e)', () => {
       .expect(201);
 
     const updatedPaymentTerminalDto = new UpdatePaymentTerminalDto();
-    updatedPaymentTerminalDto.status = 'novo status';
+    updatedPaymentTerminalDto.status = Status.Inativo;
 
     await request(app.getHttpServer())
       .patch(`/payment_terminals/${paymentTerminalId}`)
@@ -162,7 +137,7 @@ describe('PaymentTerminals (e2e)', () => {
         expect(body.status).toEqual(updatedPaymentTerminalDto.status);
       });
 
-    updatedPaymentTerminalDto.status = 'Ativo';
+    updatedPaymentTerminalDto.status = Status.Ativo;
 
     await request(app.getHttpServer())
       .patch(`/payment_terminals/invalido`)

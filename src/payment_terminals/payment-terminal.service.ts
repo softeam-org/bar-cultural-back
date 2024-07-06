@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 
 import { Prisma } from '@prisma/client';
-import { SortOrder } from '@utils/types';
 
 import { PrismaService } from '@src/prisma/prisma.service';
 
@@ -21,8 +20,11 @@ export class PaymentTerminalsService {
     createPaymentTerminalDto: CreatePaymentTerminalDto,
   ): Promise<PaymentTerminal> {
     try {
-      const paymentTerminal = await this.prisma.payment_terminal.create({
-        data: createPaymentTerminalDto,
+      const paymentTerminal = await this.prisma.paymentTerminal.create({
+        data: {
+          ...createPaymentTerminalDto,
+          status: createPaymentTerminalDto.status,
+        },
       });
       return paymentTerminal;
     } catch (err) {
@@ -30,14 +32,12 @@ export class PaymentTerminalsService {
     }
   }
 
-  async findAll(order?: SortOrder): Promise<PaymentTerminal[]> {
-    return await this.prisma.payment_terminal.findMany({
-      ...(order && { orderBy: { status: order } }),
-    });
+  async findAll(): Promise<PaymentTerminal[]> {
+    return await this.prisma.paymentTerminal.findMany();
   }
 
   async findOne(id: string): Promise<PaymentTerminal> {
-    const paymentTerminal = await this.prisma.payment_terminal.findFirst({
+    const paymentTerminal = await this.prisma.paymentTerminal.findFirst({
       where: { id },
     });
     if (!paymentTerminal)
@@ -50,7 +50,7 @@ export class PaymentTerminalsService {
     updatePaymentTerminalDto: UpdatePaymentTerminalDto,
   ): Promise<PaymentTerminal> {
     try {
-      const paymentTerminal = await this.prisma.payment_terminal.update({
+      const paymentTerminal = await this.prisma.paymentTerminal.update({
         where: { id },
         data: updatePaymentTerminalDto,
       });
@@ -68,7 +68,7 @@ export class PaymentTerminalsService {
 
   async remove(id: string): Promise<void> {
     try {
-      await this.prisma.payment_terminal.delete({
+      await this.prisma.paymentTerminal.delete({
         where: { id },
       });
     } catch (err) {
