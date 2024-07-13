@@ -11,9 +11,9 @@ CREATE TYPE "Status" AS ENUM ('Ativo', 'Inativo');
 DROP TABLE "payment_terminals";
 
 -- CreateTable
-CREATE TABLE "paymentTerminals" (
+CREATE TABLE "payment-terminals" (
     "id" TEXT NOT NULL,
     "status" "Status" NOT NULL,
 
-    CONSTRAINT "paymentTerminals_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "payment-terminals_pkey" PRIMARY KEY ("id")
 );

@@ -21,10 +21,7 @@ export class PaymentTerminalsService {
   ): Promise<PaymentTerminal> {
     try {
       const paymentTerminal = await this.prisma.paymentTerminal.create({
-        data: {
-          ...createPaymentTerminalDto,
-          status: createPaymentTerminalDto.status,
-        },
+        data: createPaymentTerminalDto,
       });
       return paymentTerminal;
     } catch (err) {

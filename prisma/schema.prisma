@@ -69,5 +69,5 @@ model PaymentTerminal {
   id     String @id @default(uuid())
   status Status
 
-  @@map("paymentTerminals")
+  @@map("payment-terminals")
 }

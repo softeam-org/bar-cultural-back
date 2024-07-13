@@ -32,9 +32,6 @@ export class PaymentTerminalsController {
     description: 'Terminal de pagamento criado com sucesso.',
     type: PaymentTerminal,
   })
-  @ApiConflictResponse({
-    description: 'Terminal de pagamento já existe.',
-  })
   @ApiBadGatewayResponse({ description: 'Requisição inválida.' })
   @Post()
   create(@Body() createPaymentTerminalDto: CreatePaymentTerminalDto) {
@@ -60,9 +57,6 @@ export class PaymentTerminalsController {
   }
 
   @ApiBadRequestResponse({ description: 'Terminal de pagamento não existe.' })
-  @ApiConflictResponse({
-    description: 'Terminal de pagamento já existe.',
-  })
   @ApiOkResponse({
     type: PaymentTerminal,
     description: 'Terminal de pagamento atualizado com sucesso.',

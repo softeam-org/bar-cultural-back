@@ -56,7 +56,6 @@ describe('PaymentTerminals (e2e)', () => {
     const paymentTerminalStatus = ['Ativo', 'Inativo'];
     const create = paymentTerminalStatus.map((status) => {
       const dto: CreatePaymentTerminalDto = {
-        ...createPaymentTerminalDto,
         status: status as Status,
       };
       return request(app.getHttpServer())
@@ -118,15 +117,13 @@ describe('PaymentTerminals (e2e)', () => {
         paymentTerminalId = response.body.id;
       });
 
-    createPaymentTerminalDto.status = Status.Ativo;
-
     await request(app.getHttpServer())
       .post('/payment_terminals')
       .send(createPaymentTerminalDto)
       .expect(201);
 
     const updatedPaymentTerminalDto = new UpdatePaymentTerminalDto();
-    updatedPaymentTerminalDto.status = Status.Inativo;
+    updatedPaymentTerminalDto.status = Status.Ativo;
 
     await request(app.getHttpServer())
       .patch(`/payment_terminals/${paymentTerminalId}`)
@@ -136,8 +133,6 @@ describe('PaymentTerminals (e2e)', () => {
         const { body } = response;
         expect(body.status).toEqual(updatedPaymentTerminalDto.status);
       });
-
-    updatedPaymentTerminalDto.status = Status.Ativo;
 
     await request(app.getHttpServer())
       .patch(`/payment_terminals/invalido`)
