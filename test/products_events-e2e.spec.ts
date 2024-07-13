@@ -131,7 +131,7 @@ describe('ProductsEvents (e2e)', () => {
       .send(createProductEventDto)
       .expect(409)
       .expect((response) => {
-        expect(response.body.message).toEqual('Produto e evento já existem.');
+        expect(response.body.message).toEqual('Produto ou evento já existem.');
       });
   });
 
