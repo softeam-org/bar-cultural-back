@@ -2,7 +2,10 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  InternalServerErrorException,
 } from '@nestjs/common';
+
+import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '@src/prisma/prisma.service';
 
@@ -23,7 +26,19 @@ export class ProductsEventsService {
       });
       return productEvent;
     } catch (err) {
-      throw new ConflictException('Produto e evento já existem.');
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === 'P2002') {
+          throw new ConflictException('Produto ou evento já existem.');
+        }
+        const field_name = err.meta?.field_name as string;
+        if (field_name.includes('product_id')) {
+          throw new BadRequestException('Produto não existe.');
+        }
+        if (field_name.includes('event_id')) {
+          throw new BadRequestException('Evento não existe.');
+        }
+      }
+      throw new InternalServerErrorException('Server Error');
     }
   }
 
@@ -39,7 +54,9 @@ export class ProductsEventsService {
   async remove(product_id: string, event_id: string): Promise<void> {
     try {
       await this.prisma.productEvent.delete({
-        where: { productEventId: { product_id: product_id, event_id: event_id } },
+        where: {
+          productEventId: { product_id: product_id, event_id: event_id },
+        },
       });
     } catch {
       throw new BadRequestException('Produto e evento não existem.');
