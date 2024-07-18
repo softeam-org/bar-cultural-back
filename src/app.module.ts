@@ -5,6 +5,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { EventsModule } from './events/events.module';
 import { PaymentTerminalsModule } from './payment_terminals/payment-terminal.module';
 import { PrismaService } from './prisma/prisma.service';
+import { ProductsEventsModule } from './products_events/products_events.module';
 import { ProductsModule } from './products/products.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { ProductsModule } from './products/products.module';
     ProductsModule,
     EventsModule,
     PaymentTerminalsModule,
+    ProductsEventsModule,
   ],
   controllers: [],
   providers: [PrismaService],
