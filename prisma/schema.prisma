@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  Ativo
+  Inativo
+}
+
 model Administrator {
   id         String   @id @default(uuid())
   name       String
@@ -60,6 +65,13 @@ model Product {
   events          ProductEvent[]
 
   @@map("products")
+}
+
+model PaymentTerminal {
+  id     String @id @default(uuid())
+  status Status
+
+  @@map("payment-terminals")
 }
 
 model ProductEvent {
