@@ -6,7 +6,7 @@ import {
 
 import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt';
-
+import { cpf } from 'cpf-cnpj-validator';
 
 import { PrismaService } from '@src/prisma/prisma.service';
 
@@ -22,13 +22,13 @@ export class SellersService {
   async create(
     createSellerDto: CreateSellerDto,
   ): Promise<Seller> {
+    if (!cpf.isValid(createSellerDto.cpf)){throw new BadRequestException('Cpf inválido.')}
     try{
       const {password} = createSellerDto;
       const roundsOfHashing = 10;
       const hashedPassword = await hash(String(password), roundsOfHashing);
       createSellerDto.password = hashedPassword;
-
-      const seller = await this.prisma.seller.create({
+        const seller = await this.prisma.seller.create({
         data: createSellerDto,
         select: selectSeller,
       });
