@@ -5,6 +5,9 @@ export class Seller {
   cpf: string;
 
   @ApiProperty()
+  password: string;
+  
+  @ApiProperty()
   created_at: Date;
 
   @ApiProperty()
