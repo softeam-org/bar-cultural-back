@@ -1,19 +1,27 @@
-import { 
-  Controller, 
-  Get, 
-  Post, 
-  Body, 
-  Patch, 
-  Param, 
-  Delete 
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
 } from '@nestjs/common';
-import { ApiBadGatewayResponse, ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadGatewayResponse,
+  ApiBadRequestResponse,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+
+import { CPFValidationPipe } from '@utils/pipes/CPFValidationPipe';
 
 import { CreateSellerDto } from './dto/create-seller.dto';
 import { UpdateSellerDto } from './dto/update-seller.dto';
 import { Seller } from './entities/seller.entity';
 import { SellersService } from './sellers.service';
-
 
 @ApiTags('Sellers')
 @Controller('sellers')
@@ -24,9 +32,8 @@ export class SellersController {
     description: 'Criado com sucesso.',
     type: Seller,
   })
-  @ApiConflictResponse({description: 'CPF já existe.'})
-  @ApiBadGatewayResponse({description: 'Requisição inválida.'})
-
+  @ApiConflictResponse({ description: 'CPF já existe.' })
+  @ApiBadGatewayResponse({ description: 'Requisição inválida.' })
   @Post()
   create(@Body() createSellerDto: CreateSellerDto) {
     return this.sellersService.create(createSellerDto);
@@ -45,29 +52,30 @@ export class SellersController {
     description: 'Encontrado com sucesso',
     type: Seller,
   })
-  @ApiBadRequestResponse({description: 'Vendedor não existe.'})
+  @ApiBadRequestResponse({ description: 'Vendedor não existe.' })
   @Get(':cpf')
-  findOne(@Param('cpf') cpf: string) {
+  findOne(@Param('cpf', CPFValidationPipe) cpf: string) {
     return this.sellersService.findOne(cpf);
   }
 
-  @ApiBadRequestResponse({description: 'Vendedor não existe.'})
-  @ApiConflictResponse({description: 'Cpf já existe.'})
+  @ApiBadRequestResponse({ description: 'Vendedor não existe.' })
+  @ApiConflictResponse({ description: 'Cpf já existe.' })
   @ApiOkResponse({
     description: 'Atualizado com sucesso.',
     type: Seller,
   })
   @Patch(':cpf')
   update(
-    @Param('cpf') cpf: string, 
-    @Body() updateSellerDto: UpdateSellerDto) {
+    @Param('cpf', CPFValidationPipe) cpf: string,
+    @Body() updateSellerDto: UpdateSellerDto,
+  ) {
     return this.sellersService.update(cpf, updateSellerDto);
   }
 
-  @ApiBadRequestResponse({description: 'Vendedor não existe.'})
-  @ApiOkResponse({description: 'Removido com sucesso.'})
+  @ApiBadRequestResponse({ description: 'Vendedor não existe.' })
+  @ApiOkResponse({ description: 'Removido com sucesso.' })
   @Delete(':cpf')
-  remove(@Param('cpf') cpf: string) {
+  remove(@Param('cpf', CPFValidationPipe) cpf: string) {
     return this.sellersService.remove(cpf);
   }
 }

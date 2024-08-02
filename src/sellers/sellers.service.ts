@@ -1,12 +1,11 @@
-import { 
+import {
   BadRequestException,
   ConflictException,
   Injectable,
- } from '@nestjs/common';
+} from '@nestjs/common';
 
 import { Prisma } from '@prisma/client';
 import { hash } from 'bcrypt';
-import { cpf } from 'cpf-cnpj-validator';
 
 import { PrismaService } from '@src/prisma/prisma.service';
 
@@ -17,67 +16,63 @@ import { selectSeller } from './models';
 
 @Injectable()
 export class SellersService {
-  constructor(private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async create(
-    createSellerDto: CreateSellerDto,
-  ): Promise<Seller> {
-    if (!cpf.isValid(createSellerDto.cpf)){throw new BadRequestException('Cpf inválido.')}
-    try{
-      const {password} = createSellerDto;
+  async create(createSellerDto: CreateSellerDto): Promise<Seller> {
+    try {
+      const { password } = createSellerDto;
       const roundsOfHashing = 10;
       const hashedPassword = await hash(String(password), roundsOfHashing);
       createSellerDto.password = hashedPassword;
-        const seller = await this.prisma.seller.create({
+      const seller = await this.prisma.seller.create({
         data: createSellerDto,
         select: selectSeller,
       });
       return seller;
-    } catch(err){
+    } catch (err) {
       throw new ConflictException('CPF já existe.');
     }
   }
 
   async findAll(): Promise<Seller[]> {
     return await this.prisma.seller.findMany({
-      select: selectSeller
+      select: selectSeller,
     });
   }
 
   async findOne(cpf: string): Promise<Seller> {
     const seller = await this.prisma.seller.findFirst({
-      where: {cpf},
+      where: { cpf },
       select: selectSeller,
     });
-    if (!seller)
-        throw new BadRequestException('Vendedor não existe.');
+    if (!seller) throw new BadRequestException('Vendedor não existe.');
     return seller;
   }
 
   async update(cpf: string, updateSellerDto: UpdateSellerDto): Promise<Seller> {
-    try{
+    try {
       delete updateSellerDto.password;
       const seller = await this.prisma.seller.update({
-        where: {cpf},
+        where: { cpf },
         data: updateSellerDto,
         select: selectSeller,
       });
       return seller;
     } catch (err) {
       const recordNotFound = 'P2025';
-      if(
+      if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
         recordNotFound == err.code
-      ){
+      ) {
         throw new BadRequestException('Vendedor não existe.');
       } else throw new ConflictException('CPF já existe.');
     }
   }
 
   async remove(cpf: string): Promise<void> {
-    try{
-      await this.prisma.seller.delete({where: {cpf}});
-    }catch (err){
+    try {
+      await this.prisma.seller.delete({ where: { cpf } });
+    } catch (err) {
       throw new BadRequestException('Vendedor não existe.');
     }
   }
