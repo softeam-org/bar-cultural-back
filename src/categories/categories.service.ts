@@ -51,6 +51,13 @@ export class CategoriesService {
         where: { id },
         data: updateCategoryDto,
       });
+
+      if (updateCategoryDto.is_active != undefined) {
+        await this.prisma.product.updateMany({
+          where: { categoryId: id },
+          data: { is_active: updateCategoryDto.is_active },
+        });
+      }
       return category;
     } catch (err) {
       const recordNotFound = 'P2025';
