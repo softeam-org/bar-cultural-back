@@ -8,11 +8,6 @@ export class CreateEventDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ example: 'descrição' })
-  @IsNotEmpty()
-  @IsString()
-  description: string;
-
   @ApiProperty({ example: new Date(2025, 6, 12) })
   @IsDateString()
   ended_at: Date;
@@ -22,8 +17,7 @@ export class CreateEventDto {
   @IsString()
   attraction: string;
 
-  @ApiProperty({ example: ['Observação 1', 'Observação 2'] })
-  @IsArray()
+  @ApiProperty({ example: 'Observação' })
   @IsString({ each: true })
-  observations: string[];
+  observations: string;
 }

@@ -8,9 +8,6 @@ export class Event {
   name: string;
 
   @ApiProperty()
-  description: string;
-
-  @ApiProperty()
   created_at: Date;
 
   @ApiProperty()
@@ -23,5 +20,5 @@ export class Event {
   attraction: string;
 
   @ApiProperty()
-  observations: string[];
+  observations: string;
 }
