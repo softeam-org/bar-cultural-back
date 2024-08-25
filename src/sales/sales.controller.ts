@@ -15,7 +15,7 @@ import { SalesService } from './sales.service';
 @ApiTags('Sales')
 @Controller('sales')
 export class SalesController {
-  constructor(private readonly salesService: SalesService) {}
+  constructor(private readonly salesService: SalesService) { }
 
   @ApiCreatedResponse({
     description: 'Venda criada com sucesso.',
@@ -52,7 +52,7 @@ export class SalesController {
     @Param('event_id') event_id: string,
     @Param('payment_method') method: string,
   ) {
-    return this.salesService.findEventProfitByPaymentType(event_id, method)
+    return this.salesService.findEventProfitByPaymentType(event_id, method);
   }
 
   @ApiBadRequestResponse({ description: 'Venda não existe.' })

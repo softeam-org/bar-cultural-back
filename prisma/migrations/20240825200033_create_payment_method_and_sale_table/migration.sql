@@ -10,11 +10,12 @@ CREATE TABLE "sales" (
 
 -- CreateTable
 CREATE TABLE "payment_methods" (
+    "id" TEXT NOT NULL,
     "method" TEXT NOT NULL,
     "value" DOUBLE PRECISION NOT NULL,
     "sale_id" TEXT NOT NULL,
 
-    CONSTRAINT "payment_methods_pkey" PRIMARY KEY ("sale_id")
+    CONSTRAINT "payment_methods_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey

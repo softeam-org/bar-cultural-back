@@ -38,14 +38,14 @@ model Category {
 }
 
 model Event {
-  id           String   @id @default(uuid())
-  name         String   @unique
+  id           String         @id @default(uuid())
+  name         String         @unique
   description  String
   ended_at     DateTime
   attraction   String
   observations String[]
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt()
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt()
   products     ProductEvent[]
   sales        Sale[]
 
@@ -53,16 +53,16 @@ model Event {
 }
 
 model Product {
-  id              String   @id @default(uuid())
-  category        Category @relation(fields: [categoryId], references: [id])
+  id              String         @id @default(uuid())
+  category        Category       @relation(fields: [categoryId], references: [id])
   categoryId      String
-  name            String   @unique
+  name            String         @unique
   description     String
   value           Float
   amount_in_stock Int
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt()
+  is_active       Boolean        @default(true)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt()
   events          ProductEvent[]
 
   @@map("products")
@@ -77,12 +77,12 @@ model PaymentTerminal {
 }
 
 model ProductEvent {
-  product     Product @relation(fields: [product_id], references: [id])
-  product_id  String
-  event       Event   @relation(fields: [event_id], references: [id])
-  event_id    String
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id String
+  event      Event   @relation(fields: [event_id], references: [id])
+  event_id   String
 
-  @@id(name:"productEventId", [product_id, event_id])
+  @@id(name: "productEventId", [product_id, event_id])
   @@map("products_events")
 }
 
@@ -101,10 +101,11 @@ model Sale {
 }
 
 model PaymentMethod {
+  id      String @id @default(uuid())
   method  String
   value   Float
-  sale    Sale    @relation(fields: [sale_id], references: [id], onDelete: Cascade)
-  sale_id String  @id
+  sale    Sale   @relation(fields: [sale_id], references: [id], onDelete: Cascade)
+  sale_id String
 
   @@map("payment_methods")
 }

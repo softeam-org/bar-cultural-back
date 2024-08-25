@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Sale } from '@src/sales/entities/sale.entity';
 
 export class PaymentMethod {
+  @ApiProperty()
+  id: string;
+
   @ApiProperty()
   method: string;
 
@@ -11,7 +13,4 @@ export class PaymentMethod {
 
   @ApiProperty()
   sale_id: string;
-
-  @ApiProperty()
-  sale?: Sale;
 }

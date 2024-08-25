@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -11,10 +10,11 @@ import { PrismaService } from '@src/prisma/prisma.service';
 
 import { CreatePaymentMethodDto } from './dto/create-payment_method.dto';
 import { PaymentMethod } from './entities/payment_method.entity';
+import { selectPaymentMethod } from './models';
 
 @Injectable()
 export class PaymentMethodsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(
     createPaymentMethodDto: CreatePaymentMethodDto,
@@ -26,29 +26,27 @@ export class PaymentMethodsService {
       return paymentMethod;
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError) {
-        if (err.code == 'P2002') {
-          throw new ConflictException('Método de pagamento já existe.');
-        }
         if (err.code == 'P2003') {
           throw new BadRequestException('Venda não existe.');
         }
       }
-      throw new InternalServerErrorException('Server Error');
+      throw new InternalServerErrorException("Server Error");
     }
   }
 
-  /*async findAllPaymentMethodsInSale(sale_id: string): Promise<PaymentMethod> {
+  async findAllPaymentMethodsInSale(id: string): Promise<PaymentMethod> {
     const paymentMethod = await this.prisma.paymentMethod.findFirst({
-      where: { sale_id },
+      where: { id },
       select: selectPaymentMethod,
     });
-    if (!paymentMethod) throw new BadRequestException('Venda não existe.');
-    return paymentMethod;
-  }*/
+    if (!paymentMethod) throw new BadRequestException('Método de pagamento não existe.');
 
-  async remove(sale_id: string): Promise<void> {
+    return paymentMethod;
+  }
+
+  async remove(id: string): Promise<void> {
     try {
-      await this.prisma.paymentMethod.delete({ where: { sale_id } });
+      await this.prisma.paymentMethod.delete({ where: { id } });
     } catch {
       throw new BadRequestException('Método de pagamento não existe.');
     }

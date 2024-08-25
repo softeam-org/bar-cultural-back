@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Param, Delete, Get } from '@nestjs/common';
 import {
   ApiBadGatewayResponse,
   ApiBadRequestResponse,
@@ -15,7 +15,7 @@ import { PaymentMethodsService } from './payment_methods.service';
 @ApiTags('PaymentMethods')
 @Controller('payment-methods')
 export class PaymentMethodsController {
-  constructor(private readonly paymentMethodsService: PaymentMethodsService) {}
+  constructor(private readonly paymentMethodsService: PaymentMethodsService) { }
 
   @ApiCreatedResponse({
     description: 'Método de pagamento criado com sucesso.',
@@ -28,20 +28,20 @@ export class PaymentMethodsController {
     return this.paymentMethodsService.create(createPaymentMethodDto);
   }
 
-  /*@ApiOkResponse({
+  @ApiOkResponse({
     description: 'Encontrado com sucesso.',
     type: PaymentMethod,
   })
   @ApiBadRequestResponse({ description: 'Método de pagamento não existe' })
-  @Get(':sale_id')
-  findAllPaymentMethodsInSale(@Param('sale_id') sale_id: string) {
+  @Get(':id')
+  findAllPaymentMethodsInSale(@Param('id') sale_id: string) {
     return this.paymentMethodsService.findAllPaymentMethodsInSale(sale_id);
-  }*/
+  }
 
   @ApiBadRequestResponse({ description: 'Método de pagamento não existe.' })
   @ApiOkResponse({ description: 'Removido com sucesso.' })
-  @Delete(':sale_id')
-  remove(@Param('sale_id') sale_id: string) {
+  @Delete(':id')
+  remove(@Param('id') sale_id: string) {
     return this.paymentMethodsService.remove(sale_id);
   }
 }
