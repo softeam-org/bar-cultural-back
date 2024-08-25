@@ -7,7 +7,6 @@ import { AppModule } from '@src/app.module';
 import { CreateEventDto } from '@src/events/dto/create-event.dto';
 import { Event } from '@src/events/entities/event.entity';
 import { CreatePaymentMethodDto } from '@src/payment_methods/dto/create-payment_method.dto';
-import { PaymentMethod } from '@src/payment_methods/entities/payment_method.entity';
 import { CreatePaymentTerminalDto } from '@src/payment_terminals/dto/create-payment-terminal.dto';
 import { PaymentTerminal } from '@src/payment_terminals/entities/payment-terminal.entity';
 import { PrismaService } from '@src/prisma/prisma.service';
@@ -19,7 +18,7 @@ enum Status {
   Inativo = 'Inativo',
 }
 
-describe.only('Sales (e2e)', () => {
+describe('Sales (e2e)', () => {
   let app: INestApplication;
   let moduleFixture: TestingModule;
   let prisma: PrismaService;
@@ -39,7 +38,6 @@ describe.only('Sales (e2e)', () => {
   createPaymentTerminalDto.status = Status.Inativo;
 
   const createPaymentMethodDto = new CreatePaymentMethodDto();
-  const paymentMethod = new PaymentMethod();
 
   createPaymentMethodDto.method = 'Dinheiro';
   createPaymentMethodDto.value = 35.8;
@@ -79,6 +77,7 @@ describe.only('Sales (e2e)', () => {
         paymentTerminal.id = body.id;
         paymentTerminal.status = body.status;
       });
+
   });
 
   const createSaleDto = new CreateSaleDto();
@@ -94,7 +93,7 @@ describe.only('Sales (e2e)', () => {
     sale.event = event;
     sale.payment_terminal_id = createSaleDto.payment_terminal_id;
     sale.payment_terminal = paymentTerminal;
-    sale.payment_methods = [paymentMethod];
+    sale.payment_methods = [];
     sale.total_value = createSaleDto.total_value;
 
     await prisma.sale.deleteMany();
@@ -108,8 +107,8 @@ describe.only('Sales (e2e)', () => {
       .expect((response) => {
         expect(response.body).toHaveProperty('id');
       });
-    
-    createSaleDto.event_id = "";
+
+    createSaleDto.event_id = "invalid";
 
     await request(app.getHttpServer())
       .post('/sales')
@@ -132,6 +131,7 @@ describe.only('Sales (e2e)', () => {
 
   test('/sale/:id (GET)', async () => {
     let saleId;
+
     await request(app.getHttpServer())
       .post('/sales')
       .send(createSaleDto)
@@ -140,11 +140,13 @@ describe.only('Sales (e2e)', () => {
         saleId = response.body.id;
       });
 
+
+
     await request(app.getHttpServer())
       .get(`/sales/${saleId}`)
       .expect(200)
       .expect((response) => {
-        expect(response.body).toEqual(sale);
+        expect(response.body).toEqual<Sale>(sale);
       });
 
     await request(app.getHttpServer())
@@ -156,23 +158,28 @@ describe.only('Sales (e2e)', () => {
   });
 
   test('/sale/:event_id/:method (GET)', async () => {
-    let eventId, method;
 
-    const sale = await request(app.getHttpServer())
+    const { body: sale } = await request(app.getHttpServer())
       .post('/sales')
       .send(createSaleDto)
       .expect(201);
 
-    /*const paymentMethod = await request(app.getHttpServer())
+    createPaymentMethodDto.sale_id = sale.id
+    const { body: payment1 } = await request(app.getHttpServer())
       .post('/payment-methods')
       .send(createPaymentMethodDto)
-      .expect(201);*/
+      .expect(201)
+
+    const { body: payment2 } = await request(app.getHttpServer())
+      .post('/payment-methods')
+      .send(createPaymentMethodDto)
+      .expect(201)
 
     await request(app.getHttpServer())
-      .get(`/sales/${eventId}/${method}`)
+      .get(`/sales/${event.id}/${payment1.method}`)
       .expect(200)
       .expect((response) => {
-        expect(response.body).toEqual(sale);
+        expect(Number(response.text)).toEqual(Number(payment1.value) + Number(payment2.value))
       });
 
     await request(app.getHttpServer())

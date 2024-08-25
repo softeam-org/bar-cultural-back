@@ -19,7 +19,7 @@ enum Status {
   Inativo = 'Inativo',
 }
 
-describe('PaymentMethods (e2e)', () => {
+describe.only('PaymentMethods (e2e)', () => {
   let app: INestApplication;
   let moduleFixture: TestingModule;
   let prisma: PrismaService;
@@ -40,10 +40,6 @@ describe('PaymentMethods (e2e)', () => {
 
   const createSaleDto = new CreateSaleDto();
   const sale = new Sale();
-
-  createSaleDto.event_id = event.id;
-  createSaleDto.payment_terminal_id = paymentTerminal.id;
-  createSaleDto.total_value = 26.3;
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -81,6 +77,10 @@ describe('PaymentMethods (e2e)', () => {
         paymentTerminal.status = body.status;
       });
 
+    createSaleDto.event_id = event.id;
+    createSaleDto.payment_terminal_id = paymentTerminal.id;
+    createSaleDto.total_value = 26.3;
+
     await request(app.getHttpServer())
       .post('/sales')
       .send(createSaleDto)
@@ -91,7 +91,6 @@ describe('PaymentMethods (e2e)', () => {
         sale.event_id = body.event_id;
         sale.event = body.event;
         sale.payment_terminal_id = body.payment_terminal_id;
-        sale.payment_terminal = body.payment_terminal;
         sale.total_value = body.total_value;
       });
   });
@@ -102,12 +101,12 @@ describe('PaymentMethods (e2e)', () => {
   beforeEach(async () => {
     createPaymentMethodDto.method = 'Dinheiro';
     createPaymentMethodDto.value = 35.8;
-    createPaymentMethodDto.sale_id = paymentMethod.sale_id;
+    createPaymentMethodDto.sale_id = sale.id;
 
+    paymentMethod.id = expect.any(String)
     paymentMethod.method = createPaymentMethodDto.method;
     paymentMethod.value = createPaymentMethodDto.value;
     paymentMethod.sale_id = createPaymentMethodDto.sale_id;
-    paymentMethod.sale = sale;
 
     await prisma.paymentMethod.deleteMany();
   });
@@ -121,27 +120,29 @@ describe('PaymentMethods (e2e)', () => {
         expect(response.body).toHaveProperty('sale_id');
       });
 
+    createPaymentMethodDto.sale_id = "invalid"
+
     await request(app.getHttpServer())
       .post('/payment-methods')
       .send(createPaymentMethodDto)
-      .expect(409)
+      .expect(400)
       .expect((response) => {
-        expect(response.body.message).toEqual('Método de pagamento já existe.');
+        expect(response.body.message).toEqual('Venda não existe.');
       });
   });
 
   test('/payment-method/:sale_id (GET)', async () => {
-    let saleId;
+    let id;
     await request(app.getHttpServer())
       .post('/payment-methods')
       .send(createPaymentMethodDto)
       .expect(201)
       .expect((response) => {
-        saleId = response.body.sale_id;
+        id = response.body.id;
       });
 
     await request(app.getHttpServer())
-      .get(`/payment-methods/${saleId}`)
+      .get(`/payment-methods/${id}`)
       .expect(200)
       .expect((response) => {
         expect(response.body).toEqual(paymentMethod);
@@ -158,22 +159,22 @@ describe('PaymentMethods (e2e)', () => {
   });
 
   test('/payment-method (DELETE)', async () => {
-    let saleId;
+    let id;
 
     await request(app.getHttpServer())
       .post('/payment-methods')
       .send(createPaymentMethodDto)
       .expect(201)
       .expect((response) => {
-        saleId = response.body.sale_id;
+        id = response.body.id;
       });
 
     await request(app.getHttpServer())
-      .delete(`/payment-methods/${saleId}`)
+      .delete(`/payment-methods/${id}`)
       .expect(200);
 
     await request(app.getHttpServer())
-      .delete(`/payment-methods/${saleId}`)
+      .delete(`/payment-methods/${id}`)
       .expect(400)
       .expect((response) => {
         expect(response.body.message).toEqual(
