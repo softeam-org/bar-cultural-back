@@ -1,5 +1,6 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
@@ -17,6 +18,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOkResponse()
+  @ApiBadRequestResponse({ description: 'CPF ou senha inválida.' })
   @ApiUnauthorizedResponse({ description: 'Credenciais inválidas.' })
   @Post('signin')
   async login(
