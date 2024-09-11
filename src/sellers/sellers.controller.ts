@@ -55,7 +55,7 @@ export class SellersController {
   @ApiBadRequestResponse({ description: 'Vendedor não existe.' })
   @Get(':cpf')
   findOne(@Param('cpf', CPFValidationPipe) cpf: string) {
-    return this.sellersService.findOne(cpf);
+    return this.sellersService.findOne(cpf, false);
   }
 
   @ApiBadRequestResponse({ description: 'Vendedor não existe.' })
