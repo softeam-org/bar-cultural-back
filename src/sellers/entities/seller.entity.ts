@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class Seller {
   @ApiProperty()
@@ -6,7 +6,7 @@ export class Seller {
 
   @ApiProperty()
   password: string;
-  
+
   @ApiProperty()
   created_at: Date;
 

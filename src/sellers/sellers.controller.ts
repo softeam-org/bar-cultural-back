@@ -26,7 +26,7 @@ import { SellersService } from './sellers.service';
 @ApiTags('Sellers')
 @Controller('sellers')
 export class SellersController {
-  constructor(private readonly sellersService: SellersService) {}
+  constructor(private readonly sellersService: SellersService) { }
 
   @ApiCreatedResponse({
     description: 'Criado com sucesso.',
@@ -55,7 +55,7 @@ export class SellersController {
   @ApiBadRequestResponse({ description: 'Vendedor não existe.' })
   @Get(':cpf')
   findOne(@Param('cpf', CPFValidationPipe) cpf: string) {
-    return this.sellersService.findOne(cpf);
+    return this.sellersService.findOne(cpf, false);
   }
 
   @ApiBadRequestResponse({ description: 'Vendedor não existe.' })

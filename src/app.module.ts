@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { AdministratorsModule } from './administrators/administrators.module';
+import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { EventsModule } from './events/events.module';
 import { PaymentTerminalsModule } from './payment_terminals/payment-terminal.module';
@@ -16,10 +17,11 @@ import { SellersModule } from './sellers/sellers.module';
     ProductsModule,
     EventsModule,
     SellersModule,
+    AuthModule,
     PaymentTerminalsModule,
     ProductsEventsModule,
   ],
   controllers: [],
   providers: [PrismaService],
 })
-export class AppModule {}
+export class AppModule { }

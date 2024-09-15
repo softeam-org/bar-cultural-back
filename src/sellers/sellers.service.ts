@@ -12,11 +12,11 @@ import { PrismaService } from '@src/prisma/prisma.service';
 import { CreateSellerDto } from './dto/create-seller.dto';
 import { UpdateSellerDto } from './dto/update-seller.dto';
 import { Seller } from './entities/seller.entity';
-import { selectSeller } from './models';
+import { createSelection } from './models';
 
 @Injectable()
 export class SellersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createSellerDto: CreateSellerDto): Promise<Seller> {
     try {
@@ -26,7 +26,7 @@ export class SellersService {
       createSellerDto.password = hashedPassword;
       const seller = await this.prisma.seller.create({
         data: createSellerDto,
-        select: selectSeller,
+        select: createSelection(false),
       });
       return seller;
     } catch (err) {
@@ -36,14 +36,14 @@ export class SellersService {
 
   async findAll(): Promise<Seller[]> {
     return await this.prisma.seller.findMany({
-      select: selectSeller,
+      select: createSelection(false),
     });
   }
 
-  async findOne(cpf: string): Promise<Seller> {
+  async findOne(cpf: string, p: boolean): Promise<Seller> {
     const seller = await this.prisma.seller.findFirst({
       where: { cpf },
-      select: selectSeller,
+      select: createSelection(p),
     });
     if (!seller) throw new BadRequestException('Vendedor não existe.');
     return seller;
@@ -55,7 +55,7 @@ export class SellersService {
       const seller = await this.prisma.seller.update({
         where: { cpf },
         data: updateSellerDto,
-        select: selectSeller,
+        select: createSelection(false),
       });
       return seller;
     } catch (err) {
