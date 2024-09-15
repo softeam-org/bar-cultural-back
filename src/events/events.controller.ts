@@ -1,5 +1,3 @@
-//definir os endpoints
-
 import {
   Controller,
   Get,

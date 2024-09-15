@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsArray, IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateEventDto {
   @ApiProperty({ example: 'guilherme' })
@@ -18,6 +18,6 @@ export class CreateEventDto {
   attraction: string;
 
   @ApiProperty({ example: 'Observação' })
-  @IsString({ each: true })
+  @IsString()
   observations: string;
 }
