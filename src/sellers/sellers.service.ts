@@ -16,7 +16,7 @@ import { createSelection } from './models';
 
 @Injectable()
 export class SellersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(createSellerDto: CreateSellerDto): Promise<Seller> {
     try {

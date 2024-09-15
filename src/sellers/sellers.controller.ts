@@ -26,7 +26,7 @@ import { SellersService } from './sellers.service';
 @ApiTags('Sellers')
 @Controller('sellers')
 export class SellersController {
-  constructor(private readonly sellersService: SellersService) {}
+  constructor(private readonly sellersService: SellersService) { }
 
   @ApiCreatedResponse({
     description: 'Criado com sucesso.',

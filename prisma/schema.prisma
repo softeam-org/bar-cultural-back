@@ -10,6 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Status {
+  Ativo
+  Inativo
+}
+
 model Administrator {
   id         String   @id @default(uuid())
   name       String
@@ -33,29 +38,30 @@ model Category {
 }
 
 model Event {
-  id           String   @id @default(uuid())
-  name         String   @unique
-  description  String
+  id           String         @id @default(uuid())
+  name         String
   ended_at     DateTime
   attraction   String
-  observations String[]
-  created_at   DateTime @default(now())
-  updated_at   DateTime @updatedAt()
+  observations String
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt()
+  products     ProductEvent[]
 
   @@map("events")
 }
 
 model Product {
-  id              String   @id @default(uuid())
-  category        Category @relation(fields: [categoryId], references: [id])
+  id              String         @id @default(uuid())
+  category        Category       @relation(fields: [categoryId], references: [id])
   categoryId      String
-  name            String   @unique
+  name            String         @unique
   description     String
   value           Float
   amount_in_stock Int
-  is_active       Boolean  @default(true)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt()
+  is_active       Boolean        @default(true)
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt()
+  events          ProductEvent[]
 
   @@map("products")
 }
@@ -67,4 +73,21 @@ model Seller {
   updated_at DateTime @updatedAt()
 
   @@map("sellers")
+}
+
+model PaymentTerminal {
+  id     String @id @default(uuid())
+  status Status
+
+  @@map("payment-terminals")
+}
+
+model ProductEvent {
+  product    Product @relation(fields: [product_id], references: [id])
+  product_id String
+  event      Event   @relation(fields: [event_id], references: [id])
+  event_id   String
+
+  @@id(name: "productEventId", [product_id, event_id])
+  @@map("products_events")
 }
