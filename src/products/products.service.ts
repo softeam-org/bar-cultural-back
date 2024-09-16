@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 
 import { Prisma } from '@prisma/client';
@@ -13,6 +14,9 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { selectProduct } from './models';
+import { Category } from '@src/categories/entities/category.entity';
+import { CreateCategoryDto } from '@src/categories/dto/create-category.dto';
+import { UpdateCategoryDto } from '@src/categories/dto/update-category.dto';
 
 @Injectable()
 export class ProductsService {
@@ -50,6 +54,22 @@ export class ProductsService {
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     try {
+      const existProduct = await this.prisma.product.findUnique({
+        where: { id },
+        include: { category: true },
+      });
+
+      if (!existProduct) {
+        throw new NotFoundException('Produto não existe.');
+      }
+
+      if (updateProductDto.is_active !== undefined) {
+        if (!existProduct.category.is_active && updateProductDto.is_active) {
+          throw new BadRequestException(
+            'Não é possível atualizar o status do produto.',
+          );
+        }
+      }
       const product = await this.prisma.product.update({
         where: { id },
         data: updateProductDto,
@@ -57,13 +77,14 @@ export class ProductsService {
       });
       return product;
     } catch (err) {
-      const recordNotFound = 'P2025';
-      if (
-        err instanceof Prisma.PrismaClientKnownRequestError &&
-        recordNotFound == err.code
-      ) {
-        throw new BadRequestException('Produto não existe.');
-      } else throw new ConflictException('Produto já existe.');
+      if (err instanceof Prisma.PrismaClientKnownRequestError) {
+        if (err.code === 'P2025') {
+          throw new NotFoundException('Produto não existe.');
+        } else if (err.code === 'P2002') {
+          throw new ConflictException('Produto já existe.');
+        }
+      }
+      throw new BadRequestException('Produto não existe.');
     }
   }
 
