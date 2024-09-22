@@ -37,10 +37,9 @@ describe('ProductsEvents (e2e)', () => {
   const event = new Event();
 
   createEventDto.name = 'evento';
-  createEventDto.description = 'descrição do evento';
   createEventDto.ended_at = new Date(2024, 7, 10);
   createEventDto.attraction = 'atração do evento';
-  createEventDto.observations = ['observação 1', 'observação 2'];
+  createEventDto.observations = 'observação 1';
 
   beforeAll(async () => {
     moduleFixture = await Test.createTestingModule({
@@ -92,7 +91,6 @@ describe('ProductsEvents (e2e)', () => {
         const body = response.body;
         event.id = body.id;
         event.name = body.name;
-        event.description = body.description;
         event.ended_at = body.ended_at;
         event.attraction = body.attraction;
         event.observations = body.observations;

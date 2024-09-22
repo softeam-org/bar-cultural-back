@@ -39,11 +39,10 @@ model Category {
 
 model Event {
   id           String         @id @default(uuid())
-  name         String         @unique
-  description  String
+  name         String
   ended_at     DateTime
   attraction   String
-  observations String[]
+  observations String
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt()
   products     ProductEvent[]
@@ -66,6 +65,15 @@ model Product {
   events          ProductEvent[]
 
   @@map("products")
+}
+
+model Seller {
+  cpf        String   @id
+  password   String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt()
+
+  @@map("sellers")
 }
 
 model PaymentTerminal {
