@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { cpf } from 'cpf-cnpj-validator';
 import * as request from 'supertest';
 
 import { AppModule } from '@src/app.module';
@@ -13,6 +14,8 @@ import { PaymentTerminal } from '@src/payment_terminals/entities/payment-termina
 import { PrismaService } from '@src/prisma/prisma.service';
 import { CreateSaleDto } from '@src/sales/dto/create-sale.dto';
 import { Sale } from '@src/sales/entities/sale.entity';
+import { CreateSellerDto } from '@src/sellers/dto/create-seller.dto';
+import { Seller } from '@src/sellers/entities/seller.entity';
 
 enum Status {
   Ativo = 'Ativo',
@@ -24,6 +27,12 @@ describe.only('PaymentMethods (e2e)', () => {
   let moduleFixture: TestingModule;
   let prisma: PrismaService;
 
+  const createSellerDto = new CreateSellerDto();
+  const seller = new Seller();
+
+  createSellerDto.cpf = cpf.generate();
+  createSellerDto.password = 'mo@#ck$%pass99word';
+
   const createPaymentTerminalDto = new CreatePaymentTerminalDto();
   const paymentTerminal = new PaymentTerminal();
 
@@ -33,10 +42,9 @@ describe.only('PaymentMethods (e2e)', () => {
   const event = new Event();
 
   createEventDto.name = 'evento';
-  createEventDto.description = 'descrição do evento';
   createEventDto.ended_at = new Date(2024, 7, 10);
   createEventDto.attraction = 'atração do evento';
-  createEventDto.observations = ['observação 1', 'observação 2'];
+  createEventDto.observations = 'observação';
 
   const createSaleDto = new CreateSaleDto();
   const sale = new Sale();
@@ -52,6 +60,17 @@ describe.only('PaymentMethods (e2e)', () => {
     await app.init();
 
     await request(app.getHttpServer())
+      .post('/sellers')
+      .send(createSellerDto)
+      .expect(201)
+      .expect((response) => {
+        const body = response.body;
+        seller.cpf = body.cpf;
+        seller.created_at = body.created_at;
+        seller.updated_at = body.updated_at;
+      })
+
+    await request(app.getHttpServer())
       .post('/events')
       .send(createEventDto)
       .expect(201)
@@ -59,7 +78,6 @@ describe.only('PaymentMethods (e2e)', () => {
         const body = response.body;
         event.id = body.id;
         event.name = body.name;
-        event.description = body.description;
         event.ended_at = body.ended_at;
         event.attraction = body.attraction;
         event.observations = body.observations;
@@ -77,6 +95,7 @@ describe.only('PaymentMethods (e2e)', () => {
         paymentTerminal.status = body.status;
       });
 
+    createSaleDto.seller_id = seller.cpf;
     createSaleDto.event_id = event.id;
     createSaleDto.payment_terminal_id = paymentTerminal.id;
     createSaleDto.total_value = 26.3;
@@ -88,6 +107,8 @@ describe.only('PaymentMethods (e2e)', () => {
       .expect((response) => {
         const body = response.body;
         sale.id = body.id;
+        sale.seller_id = body.seller_id;
+        sale.seller = body.seller;
         sale.event_id = body.event_id;
         sale.event = body.event;
         sale.payment_terminal_id = body.payment_terminal_id;

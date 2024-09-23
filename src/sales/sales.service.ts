@@ -13,7 +13,6 @@ import { CreateSaleDto } from './dto/create-sale.dto';
 import { Sale } from './entities/sale.entity';
 import { selectSale } from './models';
 
-
 @Injectable()
 export class SalesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -38,6 +37,9 @@ export class SalesService {
         }
         if(field_name.includes('payment_terminal_id')) {
           throw new BadRequestException('Terminal de pagamento não existe');
+        }
+        if(field_name.includes('seller_id')) {
+          throw new BadRequestException('Vendedor não existe.');
         }
       }
       throw new InternalServerErrorException('Server Error');

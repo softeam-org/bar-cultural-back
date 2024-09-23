@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { cpf } from 'cpf-cnpj-validator';
 import * as request from 'supertest';
 
 import { AppModule } from '@src/app.module';
@@ -12,6 +13,8 @@ import { PaymentTerminal } from '@src/payment_terminals/entities/payment-termina
 import { PrismaService } from '@src/prisma/prisma.service';
 import { CreateSaleDto } from '@src/sales/dto/create-sale.dto';
 import { Sale } from '@src/sales/entities/sale.entity';
+import { CreateSellerDto } from '@src/sellers/dto/create-seller.dto';
+import { Seller } from '@src/sellers/entities/seller.entity';
 
 enum Status {
   Ativo = 'Ativo',
@@ -23,14 +26,19 @@ describe('Sales (e2e)', () => {
   let moduleFixture: TestingModule;
   let prisma: PrismaService;
 
+  const createSellerDto = new CreateSellerDto();
+  const seller = new Seller();
+
+  createSellerDto.cpf = cpf.generate();
+  createSellerDto.password = 'mo@#ck$%pass99word';
+
   const createEventDto = new CreateEventDto();
   const event = new Event();
 
   createEventDto.name = 'evento';
-  createEventDto.description = 'descrição do evento';
   createEventDto.ended_at = new Date(2024, 7, 10);
   createEventDto.attraction = 'atração do evento';
-  createEventDto.observations = ['observação 1', 'observação 2'];
+  createEventDto.observations = 'observação';
 
   const createPaymentTerminalDto = new CreatePaymentTerminalDto();
   const paymentTerminal = new PaymentTerminal();
@@ -53,6 +61,17 @@ describe('Sales (e2e)', () => {
     await app.init();
 
     await request(app.getHttpServer())
+      .post('/sellers')
+      .send(createSellerDto)
+      .expect(201)
+      .expect((response) => {
+        const body = response.body;
+        seller.cpf = body.cpf;
+        seller.created_at = body.created_at;
+        seller.updated_at = body.updated_at;
+      });
+
+    await request(app.getHttpServer())
       .post('/events')
       .send(createEventDto)
       .expect(201)
@@ -60,7 +79,6 @@ describe('Sales (e2e)', () => {
         const body = response.body;
         event.id = body.id;
         event.name = body.name;
-        event.description = body.description;
         event.ended_at = body.ended_at;
         event.attraction = body.attraction;
         event.observations = body.observations;
@@ -77,18 +95,20 @@ describe('Sales (e2e)', () => {
         paymentTerminal.id = body.id;
         paymentTerminal.status = body.status;
       });
-
   });
 
   const createSaleDto = new CreateSaleDto();
   const sale = new Sale();
 
   beforeEach(async () => {
+    createSaleDto.seller_id = seller.cpf;
     createSaleDto.event_id = event.id;
     createSaleDto.payment_terminal_id = paymentTerminal.id;
     createSaleDto.total_value = 26.3;
 
     sale.id = expect.any(String);
+    sale.seller_id = createSaleDto.seller_id;
+    sale.seller = seller;
     sale.event_id = createSaleDto.event_id;
     sale.event = event;
     sale.payment_terminal_id = createSaleDto.payment_terminal_id;
@@ -108,7 +128,7 @@ describe('Sales (e2e)', () => {
         expect(response.body).toHaveProperty('id');
       });
 
-    createSaleDto.event_id = "invalid";
+    createSaleDto.event_id = 'invalid';
 
     await request(app.getHttpServer())
       .post('/sales')
@@ -140,13 +160,11 @@ describe('Sales (e2e)', () => {
         saleId = response.body.id;
       });
 
-
-
     await request(app.getHttpServer())
       .get(`/sales/${saleId}`)
       .expect(200)
       .expect((response) => {
-        expect(response.body).toEqual<Sale>(sale);
+        expect(response.body).toEqual(sale);
       });
 
     await request(app.getHttpServer())
@@ -158,28 +176,29 @@ describe('Sales (e2e)', () => {
   });
 
   test('/sale/:event_id/:method (GET)', async () => {
-
     const { body: sale } = await request(app.getHttpServer())
       .post('/sales')
       .send(createSaleDto)
       .expect(201);
 
-    createPaymentMethodDto.sale_id = sale.id
+    createPaymentMethodDto.sale_id = sale.id;
     const { body: payment1 } = await request(app.getHttpServer())
       .post('/payment-methods')
       .send(createPaymentMethodDto)
-      .expect(201)
+      .expect(201);
 
     const { body: payment2 } = await request(app.getHttpServer())
       .post('/payment-methods')
       .send(createPaymentMethodDto)
-      .expect(201)
+      .expect(201);
 
     await request(app.getHttpServer())
       .get(`/sales/${event.id}/${payment1.method}`)
       .expect(200)
       .expect((response) => {
-        expect(Number(response.text)).toEqual(Number(payment1.value) + Number(payment2.value))
+        expect(Number(response.text)).toEqual(
+          Number(payment1.value) + Number(payment2.value),
+        );
       });
 
     await request(app.getHttpServer())

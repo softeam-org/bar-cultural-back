@@ -3,10 +3,17 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Event } from '@src/events/entities/event.entity';
 import { PaymentMethod } from '@src/payment_methods/entities/payment_method.entity';
 import { PaymentTerminal } from '@src/payment_terminals/entities/payment-terminal.entity';
+import { Seller } from '@src/sellers/entities/seller.entity';
 
 export class Sale {
   @ApiProperty()
   id: string;
+
+  @ApiProperty()
+  seller_id: string;
+
+  @ApiProperty()
+  seller?: Seller;
 
   @ApiProperty()
   event_id: string;

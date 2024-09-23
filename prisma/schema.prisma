@@ -72,6 +72,7 @@ model Seller {
   password   String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt()
+  sales      Sale[]
 
   @@map("sellers")
 }
@@ -96,8 +97,8 @@ model ProductEvent {
 
 model Sale {
   id                  String          @id @default(uuid())
-  //seller            Seller          @realtion(fields: [seller_id], references: [id])
-  //seller_id         String
+  seller              Seller          @relation(fields: [seller_id], references: [cpf])
+  seller_id           String
   event               Event           @relation(fields: [event_id], references: [id])
   event_id            String
   payment_terminal    PaymentTerminal @relation(fields: [payment_terminal_id], references: [id])
