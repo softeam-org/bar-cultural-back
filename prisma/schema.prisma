@@ -46,6 +46,7 @@ model Event {
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt()
   products     ProductEvent[]
+  sales        Sale[]
 
   @@map("events")
 }
@@ -71,6 +72,7 @@ model Seller {
   password   String
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt()
+  sales      Sale[]
 
   @@map("sellers")
 }
@@ -78,6 +80,7 @@ model Seller {
 model PaymentTerminal {
   id     String @id @default(uuid())
   status Status
+  sales  Sale[]
 
   @@map("payment-terminals")
 }
@@ -90,4 +93,28 @@ model ProductEvent {
 
   @@id(name: "productEventId", [product_id, event_id])
   @@map("products_events")
+}
+
+model Sale {
+  id                  String          @id @default(uuid())
+  seller              Seller          @relation(fields: [seller_id], references: [cpf])
+  seller_id           String
+  event               Event           @relation(fields: [event_id], references: [id])
+  event_id            String
+  payment_terminal    PaymentTerminal @relation(fields: [payment_terminal_id], references: [id])
+  payment_terminal_id String
+  total_value         Float
+  payment_methods     PaymentMethod[]
+
+  @@map("sales")
+}
+
+model PaymentMethod {
+  id      String @id @default(uuid())
+  method  String
+  value   Float
+  sale    Sale   @relation(fields: [sale_id], references: [id], onDelete: Cascade)
+  sale_id String
+
+  @@map("payment_methods")
 }
