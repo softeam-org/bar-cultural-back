@@ -29,6 +29,13 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
-  await app.listen(3000);
+  app.enableCors({
+    origin: process.env.CORS_ALLOWED_ORIGINS,
+    methods: process.env.CORS_ALLOWED_METHODS,
+    allowedHeaders: process.env.CORS_ALLOWED_HEADRES,
+  });
+
+  await app.listen(process.env.PORT ?? 3000);
 }
+
 bootstrap();
